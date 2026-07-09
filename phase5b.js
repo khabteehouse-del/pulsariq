@@ -1,3 +1,20 @@
+// PulsarIQ — Phase 5B: Premium Landing Page Overhaul
+// Run from C:\pulsariq: node phase5b.js
+
+const fs   = require('fs');
+const path = require('path');
+const root = process.cwd();
+
+function write(filePath, content) {
+  const full = path.join(root, filePath);
+  fs.mkdirSync(path.dirname(full), { recursive: true });
+  fs.writeFileSync(full, content.trimStart(), 'utf8');
+  console.log('  \u2713', filePath);
+}
+
+console.log('\n  PulsarIQ \u2014 Phase 5B: Premium Landing Page\n');
+
+write('app/page.tsx', String.raw`
 'use client';
 import { useEffect, useRef } from 'react';
 import { ArrowRight, Shield, Database, MessageSquare, FileText, Users, Lock, Zap, BarChart2, Check } from 'lucide-react';
@@ -394,3 +411,17 @@ export default function LandingPage() {
     </div>
   );
 }
+`);
+
+console.log('\n  \u2705 Phase 5B complete!\n');
+console.log('  What was built:');
+console.log('  \u2713 Lorenz attractor hero background');
+console.log('  \u2713 Split hero layout with dashboard mockup');
+console.log('  \u2713 Scrolling logo marquee (trust signals)');
+console.log('  \u2713 Bento grid feature cards');
+console.log('  \u2713 3-step how it works');
+console.log('  \u2713 Stats bar');
+console.log('  \u2713 Testimonials grid');
+console.log('  \u2713 3-tier pricing table');
+console.log('  \u2713 Cosmic PULSARIQ footer\n');
+console.log('  Stop server \u2192 npm run dev \u2192 http://localhost:3000\n');

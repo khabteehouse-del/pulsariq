@@ -182,7 +182,7 @@ MIT
 
 ## Author
 
-**Muhammad Faraz**
+**Faraz Akhtar**
 [LinkedIn](https://www.linkedin.com/in/beyondtahir/) · [GitHub](https://github.com/khabteehouse-del)
 
 *PulsarIQ — Your knowledge, pulsing with intelligence.*

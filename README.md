@@ -183,6 +183,6 @@ MIT
 ## Author
 
 **Faraz Akhtar**
-[LinkedIn](https://www.linkedin.com/in/beyondtahir/) · [GitHub](https://github.com/khabteehouse-del)
+[LinkedIn](https://www.linkedin.com/in/farazakhtar1980/) · [GitHub](https://github.com/khabteehouse-del)
 
 *PulsarIQ — Your knowledge, pulsing with intelligence.*

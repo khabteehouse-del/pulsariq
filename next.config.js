@@ -1,17 +1,16 @@
-/** @type {import('next').NextConfig} */
+node -e "const fs=require('fs');fs.writeFileSync('next.config.js',`/** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   experimental: {
     serverComponentsExternalPackages: [
-      "pdf-parse", "mammoth", "xlsx",
-      "pptx-parser", "bullmq", "ioredis",
+      'pdf-parse', 'mammoth', 'xlsx',
     ],
   },
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "*.supabase.co" },
-      { protocol: "https", hostname: "*.supabase.in" },
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.in' },
     ],
   },
   webpack: (config) => {
@@ -19,5 +18,5 @@ const nextConfig = {
     return config;
   },
 };
-
 module.exports = nextConfig;
+`);console.log('done');"

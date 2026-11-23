@@ -5,7 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-pgvector-3ECF8E?style=for-the-badge&logo=supabase)
 
-> **Self-hosted enterprise RAG platform — upload any document, ask any question, get cited answers. Zero data leaves your infrastructure.**
+> **Enterprise RAG document platform: upload documents, ask questions, get cited answers. Designed for self-hosted deployment, with a cloud-based public demo.**
 
 🔗 **Live Demo:** https://pulsariq.vercel.app
 📂 **GitHub:** https://github.com/khabteehouse-del/pulsariq
@@ -18,12 +18,12 @@ PulsarIQ is designed to be **LLM-agnostic**. The inference layer supports two de
 
 | Mode | Provider | Use Case |
 |------|----------|----------|
-| **Self-hosted (Production)** | Ollama — llama3.2:3b running on-premise | Enterprise clients who require zero data leaving their infrastructure |
-| **Cloud (Public Demo)** | Groq API — llama-3.1-8b-instant | Public demo on Vercel where local Ollama cannot run |
+| **Self-hosted (design target)** | Ollama (llama3.2:3b) on-premise | For clients who need data to stay on their own infrastructure. Ollama embeddings exist in `lib/ingestion`. The chat route in this repository does not call Ollama yet. |
+| **Cloud (Public Demo, what runs today)** | Groq API (llama-3.1-8b-instant) for answers, OpenAI API (text-embedding-3-small, 384 dimensions) for document embeddings | Public demo on Vercel, where local Ollama cannot run |
 
-The public demo at **pulsariq.vercel.app** uses Groq's API for accessibility. In a real enterprise deployment, the client runs their own Ollama instance and the Groq dependency is removed entirely. **Switching between them requires a single environment variable change** — the rest of the system is identical.
+The public demo at **pulsariq.vercel.app** runs on cloud services: uploaded documents are embedded through the OpenAI API, and questions plus the selected text passages are sent to Groq to generate answers. Do not upload confidential documents to the demo.
 
-This architecture decision was deliberate: it demonstrates that the platform is not locked into any single LLM provider, which is a core requirement for enterprise AI deployments.
+The self-hosted design replaces those cloud calls with Ollama so data stays on the client's infrastructure. Today, the ingestion code in `lib/ingestion` has the Ollama embedding path. The chat route is Groq-only, so a fully self-hosted deployment needs that route wired to Ollama first. This is not a one-line environment switch in the current code.
 
 ---
 
@@ -37,9 +37,9 @@ PulsarIQ is a production-grade Retrieval-Augmented Generation (RAG) platform bui
 
 - **Document Intelligence** — Upload PDF, DOCX, XLSX, PPTX, CSV, TXT, HTML. Files are chunked, embedded, and indexed automatically.
 - **Natural Language Chat** — Ask questions in plain English. Answers are grounded in your documents with citations back to the source.
-- **Semantic Vector Search** — pgvector cosine similarity finds relevant content by meaning, not just keyword matching.
-- **100% Private AI** — Language model inference runs on-premise via Ollama. No data sent externally in production.
-- **LLM-Agnostic Design** — Swap between Ollama, Groq, or any OpenAI-compatible API via a single environment variable.
+- **Vector Storage** — chunks are stored with 384-dimension embeddings in pgvector, and a `match_chunks` cosine-similarity function is defined in `supabase/schema.sql`. The current chat route ranks the first 60 chunks of the selected documents by keyword overlap, and does not call `match_chunks` yet (see Current Status).
+- **Private Deployment Design** — built to support a self-hosted Ollama setup so data can stay on client infrastructure. The public demo is cloud-based and is not private (see Inference Architecture).
+- **Provider Separation** — embedding and answer generation are separate steps with separate providers, so each can be swapped with code changes.
 - **Enterprise RBAC** — Admin, Manager, Viewer roles with multi-tenant organization support.
 - **Document Preview** — Click any document to see extracted content before querying.
 - **Real-time Notifications** — Bell notifications when documents finish processing.
@@ -54,15 +54,17 @@ PulsarIQ is a production-grade Retrieval-Augmented Generation (RAG) platform bui
 | Frontend | Next.js 14, TypeScript, React |
 | Database | Supabase (PostgreSQL + pgvector) |
 | Storage | Supabase Storage |
-| AI Inference | Ollama (self-hosted) / Groq API (cloud demo) |
-| LLM Model | llama3.2:3b (Ollama) / llama-3.1-8b-instant (Groq) |
-| Embeddings | all-minilm (384 dimensions via Ollama) |
+| AI Inference | Groq API (live demo). Ollama is the self-hosted design target |
+| LLM Model | llama-3.1-8b-instant (Groq, live demo) / llama3.2:3b (Ollama, design target) |
+| Embeddings | text-embedding-3-small at 384 dimensions (OpenAI, live demo ingestion) / all-minilm 384 dimensions (Ollama, `lib/ingestion`) |
 | Auth | Supabase Auth |
 | Deployment | Vercel (demo) / Self-hosted (production) |
 
 ---
 
 ## RAG Pipeline
+
+**Live demo, as implemented in `app/api/ingest` and `app/api/chat`:**
 
 ```
 Upload File
@@ -71,18 +73,28 @@ Extract Text (PDF, DOCX, XLSX, etc.)
     ↓
 Chunk Text (overlapping segments)
     ↓
-Generate Embeddings (all-minilm, 384D via Ollama)
+Generate Embeddings (OpenAI text-embedding-3-small, 384D)
     ↓
 Store in pgvector (Supabase)
     ↓
 User Question
     ↓
-Semantic Similarity Search (pgvector cosine distance)
+Rank chunks of the selected documents by keyword overlap (top 6)
     ↓
-Top-K Chunks → LLM Context
-    ↓
-Ollama / Groq → Grounded Answer + Deduplicated Citations
+Groq (llama-3.1-8b-instant) → Grounded Answer + Deduplicated Citations
 ```
+
+**Design target, partly implemented:** retrieve with `match_chunks` (pgvector cosine similarity, already defined in the schema) and use Ollama for embeddings and answers.
+
+## Current Status
+
+| Capability | Status |
+|---|---|
+| Upload, chunk, embed and store documents | Implemented (OpenAI embeddings on the demo, Ollama path in `lib/ingestion`) |
+| Cited answers from selected documents | Implemented (keyword-ranked retrieval, Groq answers) |
+| pgvector similarity retrieval in the chat route | Not wired yet (`match_chunks` exists in the schema) |
+| Fully self-hosted chat through Ollama | Not wired yet in this repository |
+| Admin, Manager and Viewer roles with row-level security | Implemented in `supabase/schema.sql` |
 
 ---
 

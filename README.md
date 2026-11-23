@@ -92,6 +92,21 @@ Groq (llama-3.1-8b-instant) → Grounded Answer + Deduplicated Citations
 
 **Design target, partly implemented:** retrieve with `match_chunks` (pgvector cosine similarity, already defined in the schema) and use Ollama for embeddings and answers.
 
+## Live Demo Data Flow
+
+```mermaid
+flowchart TD
+    U["User uploads a document"] --> X["Extract text and chunk"]
+    X --> EM["Embed chunks with OpenAI text-embedding-3-small"]
+    EM --> DB[("Supabase pgvector")]
+    Q["User asks a question"] --> K["Rank chunks of the selected documents by keyword overlap"]
+    DB --> K
+    K --> G["Groq generates the answer"]
+    G --> C["Answer with citations"]
+```
+
+---
+
 ## Current Status
 
 | Capability | Status |

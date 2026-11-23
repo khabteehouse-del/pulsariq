@@ -27,6 +27,12 @@ The self-hosted design replaces those cloud calls with Ollama so data stays on t
 
 ---
 
+## Demo Access
+
+Open https://pulsariq.vercel.app and use **Create workspace** to sign up, or **Sign In** if you already have an account. The demo is cloud-based, so do not upload confidential documents.
+
+---
+
 ## What is PulsarIQ?
 
 PulsarIQ is a production-grade Retrieval-Augmented Generation (RAG) platform built for enterprises that cannot send sensitive documents to third-party AI APIs. Upload PDFs, Word documents, spreadsheets, presentations, or any text file — then query your entire knowledge base in natural language. Every answer is grounded in your source documents with exact citations.
